@@ -1,0 +1,71 @@
+<!doctype html>
+<html  ng-app="scotchTodo">
+
+
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script><!-- load angular -->
+   
+<!--     <script src="app.js"></script>
+ -->
+  <body ng-controller="mainController">
+<div >
+  <form>
+    First Name: <input type="text" ng-model="firstname"> <br>
+     Last Name: <input type="text" ng-model="lastname"> <br>
+      Age: <input type="number" ng-model="age"> <br>
+      <button type="submit" class="btn btn-primary btn-lg" ng-click="createTodo()">Add</button>
+  </form>
+
+  <h3>
+  	You entered: {{firstname}}--{{lastname}}--{{age}}
+  </h3>
+
+</div>
+  </body>
+<!--   <script type="text/javascript" src="app.js"></script>
+ -->
+
+</html>
+
+<script>
+	var app = angular.module('scotchTodo', []);
+app.controller('mainController', function($scope, $http) {
+    console.log("in mainController");
+  $scope.firstname = "Hello";
+  $scope.lastname = "World";
+   $scope.age= "18";
+    $scope.formData = {
+    fname: $scope.firstname,
+    lname: $scope.lastname,
+    age: $scope.age
+  };
+ // $scope.formData = {};
+
+// when landing on the page, get all todos and show them
+  /*$http.get('/api/todos')
+        .success(function(data) {
+            $scope.todos = data;
+            console.log(data);
+        })
+        .error(function(data) {
+            console.log('Error: ' + data);
+        });
+*/
+     // when submitting the add form, send the text to the node API
+    $scope.createTodo = function() {
+    	console.log("in js api:   "+ $scope.firstname+ "-" + $scope.lastname + "-" +  $scope.age);
+
+    	console.log("formdata:  " + $scope.formData.fname);
+
+        $http.post('/api/todos', $scope.formData)
+            .success(function(data) {
+                //$scope.formData = {}; // clear the form so our user is ready to enter another
+                $scope.todos = data;
+                console.log(data);
+            })
+            .error(function(data) {
+                console.log('Error: ');
+            });
+    };
+
+});
+</script> 
