@@ -1,44 +1,107 @@
 <!doctype html>
-<html  ng-app="scotchTodo">
+<html ng-app="crudApp">
+<head>
+  <title>
+     CRUD Angular 1.2
+  </title>
+<!--    <link rel="stylesheet" type="text/css" href="/css/mystyle.css">
+ -->  <style>
+        body{
+          text-align: center;
+        }
 
+        table, th , td  {
+          border: 1px solid grey;
+          border-collapse: collapse;
+          padding: 5px;
+        }
 
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script><!-- load angular -->
-   
-<!--     <script src="app.js"></script>
- -->
+        table tr:nth-child(odd) {
+          background-color: #f1f1f1;
+          text-align: left;
+        }
+
+        table tr:nth-child(even) {
+          background-color: #ffffff;
+          text-align: left;
+        }
+
+  </style>
+
+  <!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script> -->
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+   <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> 
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+
+</head>
+
   <body ng-controller="mainController">
-<div >
-  <form>
-    First Name: <input type="text" ng-model="firstname"> <br>
-     Last Name: <input type="text" ng-model="lastname"> <br>
-      Age: <input type="number" ng-model="age"> <br>
-      <button type="submit" class="btn btn-primary btn-lg" ng-click="createTodo()">Add</button>
-  </form>
+<div>
+  
+<div class="container" >
+  <div class = "panel panel-default" style="margin:3%;">
+      <div class="panel-heading">
+        <h3>Angular 1.2 CRUD Operation</h3>
+      </div>
+           
+      <div class="panel-body">
+          <form>
+              First Name: <input type="text"  ng-model="firstname" > 
+              Last Name: <input type="text" ng-model="lastname" > 
+              Age: <input type="number" ng-model="age"> <br> <br>
+           </form>
+          
 
-  <h3>
+          <button type="submit" class="btn btn-success" ng-click="showValues()">Show Values from DB</button>
+    </div>
+    <div ng-show="firstname && lastname && age" >
+      <h4>
   	You entered: {{firstname}}--{{lastname}}--{{age}}
-  </h3>
+  </h4>
+  <button type="submit" class="btn btn-success" ng-click="createTodo()">Add</button>
+   
+  </div>
+</div>
+  <h3 style="margin-bottom: 2%;">Fetching data</h3>
+
+<table class="table table-striped" style="width: 50%;height:40%;" align="center">
+  <tr  ng-repeat="todo in todos" >
+     <td>{{ $index + 1 }}. </td>
+    <!-- <td>{{ todo._id }}</td> -->
+    <td> {{ todo.fname }} </td>
+    <td>{{ todo.lname }} </td>
+    <td>{{ todo.age }} </td>
+    <td style="cursor:pointer;" class="badge" ng-click="removeItem(todo.fname )">Delete</td>
+   <!--  <span style="cursor:pointer;" class="badge" ng-click="removeItem($index)"> Delete</span>-->
+  </tr>
+</table>
 
 </div>
   </body>
 <!--   <script type="text/javascript" src="app.js"></script>
  -->
-
 </html>
 
 <script>
-	var app = angular.module('scotchTodo', []);
+	var app = angular.module('crudApp', []);
 app.controller('mainController', function($scope, $http) {
     console.log("in mainController");
-  $scope.firstname = "Hello";
-  $scope.lastname = "World";
-   $scope.age= "18";
-    $scope.formData = {
-    fname: $scope.firstname,
-    lname: $scope.lastname,
-    age: $scope.age
-  };
- // $scope.formData = {};
+
+ $http.get('/api/showData')
+        .success(function(data) {
+            $scope.todos = data;
+            console.log(data);
+        })
+        .error(function(data) {
+            console.log('Error: ' + data);
+        });
+
 
 // when landing on the page, get all todos and show them
   /*$http.get('/api/todos')
@@ -54,18 +117,60 @@ app.controller('mainController', function($scope, $http) {
     $scope.createTodo = function() {
     	console.log("in js api:   "+ $scope.firstname+ "-" + $scope.lastname + "-" +  $scope.age);
 
-    	console.log("formdata:  " + $scope.formData.fname);
+        $scope.formData = {
+            fname: $scope.firstname,
+            lname: $scope.lastname,
+            age: $scope.age
+            };
 
-        $http.post('/api/todos', $scope.formData)
+    	console.log("formdata:  " + $scope.formData);
+      console.log($scope.formData);
+
+//sending values to db(server.js)
+        $http.post('/api/addData', $scope.formData)
             .success(function(data) {
-                //$scope.formData = {}; // clear the form so our user is ready to enter another
-                $scope.todos = data;
+                $scope.todos = data; //assigning value from db(Server.js)
                 console.log(data);
             })
             .error(function(data) {
                 console.log('Error: ');
             });
+            $scope.showValues();
     };
+
+    $scope.removeItem= function(removeVar){
+      console.log("in removeItem, value:" + removeVar);
+      //sending variable to db(server.js) to delete that value's entire document in db
+
+      $scope.formData = {
+            remVar: removeVar,
+            };
+
+
+      $http.post('/api/removeValue', $scope.formData)
+            .success(function(data) {
+                console.log("delete success");
+                $scope.showValues();
+                console.log(data);
+            })
+            .error(function(data) {
+                console.log('Error: ');
+            });
+
+    }
+
+    $scope.showValues = function(){
+      console.log("in show values api js");
+//fetching values from db(Server.js)
+      $http.get('/api/showData')
+        .success(function(data) {
+            $scope.todos = data;
+            console.log(data);
+        })
+        .error(function(data) {
+            console.log('Error: ' + data);
+        });
+    }
 
 });
 </script> 
