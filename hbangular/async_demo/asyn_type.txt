@@ -1,0 +1,11 @@
+https://medium.com/velotio-perspectives/understanding-node-js-async-flows-parallel-serial-waterfall-and-queues-6f9c4badbc17
+
+When we have to run multiple tasks independent of each other without waiting until the previous task has completed, parallel comes into the picture.
+
+When we have to run multiple tasks which depend on the output of the previous task, series comes to our rescue.
+
+Combining Async Flows
+
+In complex scenarios, the async flows like parallel and series can be combined and nested. This helps in achieving the expected output with the benefits of async utilities.
+
+However, the only difference between Waterfall and Series async utility is that the final callback in series receives an array of results of all the task whereas, in Waterfall, the result object of the final task is received by the final callback.
